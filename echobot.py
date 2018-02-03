@@ -10,7 +10,7 @@
 #   Tommmy Tran
 #   Kelvin Liu
 #   Nikola Stevanovic
-#   Yahye Mohammed
+#   Yahye Mohamud
 #   Kavinsan Thavanesan
 
 import os
