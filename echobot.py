@@ -19,6 +19,7 @@ import re
 from slackclient import SlackClient
 
 import json #used for debug printing
+import requests
 
 # instantiate Slack client
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
@@ -29,7 +30,23 @@ starterbot_id = None
 RTM_READ_DELAY = 1 # 1 second delay between reading from RTM
 EXAMPLE_COMMAND = "?"
 MENTION_REGEX = "^<@(|[WU].+)>(.*)"
+WEATHER = "!"
+API_KEY = '66ee6b4784750a5094708018e3dbc75b'
 
+def weather_search(city_name):
+    url = 'http://api.openweathermap.org/data/2.5/weather?q={}&APPID={}&units=metric'.format(city_name,API_KEY)
+    json_data = requests.get(url).json()
+    if json_data['cod'] == '404':
+        return "Error 404: City name not found"
+    elif json_data['cod'] == '401':
+        return "Error 401: Invalid APIID. Contact Admin for support."
+    elif json_data['cod'] == '503':
+        return "Error 503: Server Error. Please try again later."
+    else:
+        temp = float(json_data['main']['temp'])
+        description = json_data['weather'][0]['description']
+        response = 'The weather in {} is described as {} with a temperature {} degrees Celcius'.format(city_name.capitalize(),description,int(round(temp)))
+        return response
 
 def parse_bot_commands(slack_events):
     """
@@ -69,8 +86,10 @@ def handle_command(command, channel):
     # This is where you start to implement more commands!
     if command.endswith(EXAMPLE_COMMAND):
         response = "*{}*".format(command)
+    if command.startswith(WEATHER):
+        response = weather_search(command[1:])
     else:
-        default_response = "Sorry. That didn't work. Try adding *{}* to then end".format(EXAMPLE_COMMAND)
+        default_response = "Sorry. That didn't work. Try adding *{}* to then end for echo or *{}* to the beginning for weather".format(EXAMPLE_COMMAND, WEATHER)
 
     # Sends the response back to the channel
     slack_client.api_call(
