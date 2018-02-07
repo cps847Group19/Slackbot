@@ -7,4 +7,3 @@
     Kelvin Liu
     Nikola Stevanovic
     Yahye Mohamud
-    Kavinsan Thavanesan
